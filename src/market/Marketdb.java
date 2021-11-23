@@ -93,7 +93,7 @@ public class Marketdb extends JFrame{
 		JButton cbtn[];
 		JTextField ctf[];
 		JTextArea cta[];
-		String[] lbl_tf= {"상품종류","상품명","제조회사","가격"}; //(전화번호는 앞자리만,중복은 상관없음. or 중복없이 11자리 모두 사용)
+		String[] lbl_tf= {"상품종류","상품명","제조회사","가격"};
 		String[] lbl_btn= {"추가","조회","수정","삭제"};
 		JTable table;
 		DefaultTableModel model;
@@ -142,7 +142,7 @@ public class Marketdb extends JFrame{
 		JButton cbtn[];
 		JTextField ctf[];
 		JTextArea cta[];
-		String[] lbl_tf= {"ID","이름","주소","전화번호","직급"}; //(전화번호는 앞자리만,중복은 상관없음. or 중복없이 11자리 모두 사용)
+		String[] lbl_tf= {"ID","이름","주소","전화번호","직급"}; //(전화번호는 중복없이 11자리 모두 사용)
 		String[] lbl_btn= {"추가","조회","수정","삭제"};
 		JTable table;
 		DefaultTableModel model;
