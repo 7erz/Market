@@ -1,14 +1,13 @@
 package market;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 public class Marketdb extends JFrame{
-	JPanel pnl[]; //4?
-	JLabel lbl[]; //4?
-	JButton btn[]; //4
-	JTextArea ta;
-	JTextField tf[]; //5?
 	JTabbedPane pane;
 	Container contentPane;
 	
@@ -17,7 +16,6 @@ public class Marketdb extends JFrame{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		contentPane = getContentPane();
 		pane = createJTabbedPane();
-		
 		contentPane.add(pane,BorderLayout.CENTER);
 		setSize(1280,720);
 		setVisible(true);
@@ -88,28 +86,28 @@ public class Marketdb extends JFrame{
 	
 	
 	class StockPanel extends JPanel {
-		JPanel cpnl[];
-		JLabel clbl[];
-		JButton cbtn[];
-		JTextField ctf[];
-		JTextArea cta[];
+		JPanel spnl[];
+		JLabel slbl[];
+		JButton sbtn[];
+		JTextField stf[];
+		JTextArea sta[];
 		String[] lbl_tf= {"상품종류","상품명","제조회사","가격"};
 		String[] lbl_btn= {"추가","조회","수정","삭제"};
 		JTable table;
 		DefaultTableModel model;
 		
 		public StockPanel() {
-			clbl = new JLabel[4];
-			cbtn = new JButton[4];
-			ctf = new JTextField[5];
-			cpnl = new JPanel[3];
+			slbl = new JLabel[4];
+			sbtn = new JButton[4];
+			stf = new JTextField[5];
+			spnl = new JPanel[3];
 			setLayout(new BorderLayout());
 			for(int i = 0;i < 4;i++) {
-				ctf[i] = new JTextField(10);
-				cbtn[i] = new JButton(lbl_btn[i]);
-				clbl[i] = new JLabel(lbl_tf[i]);
+				stf[i] = new JTextField(10);
+				sbtn[i] = new JButton(lbl_btn[i]);
+				slbl[i] = new JLabel(lbl_tf[i]);
 				if(i<3) {
-					cpnl[i] = new JPanel();
+					spnl[i] = new JPanel();
 				}
 			}
 			model = new DefaultTableModel(lbl_tf,0) {
@@ -120,28 +118,28 @@ public class Marketdb extends JFrame{
 			};
 			table = new JTable(model);
 			
-			add(cpnl[0],BorderLayout.NORTH);
-			add(cpnl[1],BorderLayout.CENTER);
-			add(cpnl[2],BorderLayout.SOUTH);
+			add(spnl[0],BorderLayout.NORTH);
+			add(spnl[1],BorderLayout.CENTER);
+			add(spnl[2],BorderLayout.SOUTH);
 			
 			for(int i = 0;i<4;i++) {
-				cpnl[0].add(clbl[i]);
-				cpnl[0].add(ctf[i]);
+				spnl[0].add(slbl[i]);
+				spnl[0].add(stf[i]);
 			}
-			cpnl[1].add(new JScrollPane(table));
+			spnl[1].add(new JScrollPane(table));
 			for(int i = 0;i<4;i++) {
-				cpnl[2].add(cbtn[i]);
+				spnl[2].add(sbtn[i]);
 			}
 		}
 	}
 	
 	
 	class EmployeePanel extends JPanel {
-		JPanel cpnl[];
-		JLabel clbl[];
-		JButton cbtn[];
-		JTextField ctf[];
-		JTextArea cta[];
+		JPanel epnl[];
+		JLabel elbl[];
+		JButton ebtn[];
+		JTextField etf[];
+		JTextArea eta[];
 		String[] lbl_tf= {"ID","이름","주소","전화번호","직급"}; //(전화번호는 중복없이 11자리 모두 사용)
 		String[] lbl_btn= {"추가","조회","수정","삭제"};
 		JTable table;
@@ -149,19 +147,19 @@ public class Marketdb extends JFrame{
 		
 		
 		public EmployeePanel() {
-			clbl = new JLabel[5];
-			cbtn = new JButton[4];
-			ctf = new JTextField[5];
-			cpnl = new JPanel[3];
+			elbl = new JLabel[5];
+			ebtn = new JButton[4];
+			etf = new JTextField[5];
+			epnl = new JPanel[3];
 			setLayout(new BorderLayout());
 			for(int i = 0;i < 5;i++) {
-				clbl[i] = new JLabel(lbl_tf[i]);
-				ctf[i] = new JTextField(10);
+				elbl[i] = new JLabel(lbl_tf[i]);
+				etf[i] = new JTextField(10);
 				if(i<4) {
-					cbtn[i] = new JButton(lbl_btn[i]);
+					ebtn[i] = new JButton(lbl_btn[i]);
 				}
 				if(i<3) {
-					cpnl[i] = new JPanel();
+					epnl[i] = new JPanel();
 				}
 			}
 			model = new DefaultTableModel(lbl_tf,0) {
@@ -172,23 +170,47 @@ public class Marketdb extends JFrame{
 			};
 			table = new JTable(model);
 			
-			add(cpnl[0],BorderLayout.NORTH);
-			add(cpnl[1],BorderLayout.CENTER);
-			add(cpnl[2],BorderLayout.SOUTH);
+			add(epnl[0],BorderLayout.NORTH);
+			add(epnl[1],BorderLayout.CENTER);
+			add(epnl[2],BorderLayout.SOUTH);
 			
 			for(int i = 0;i<5;i++) {
-				cpnl[0].add(clbl[i]);
-				cpnl[0].add(ctf[i]);
+				epnl[0].add(elbl[i]);
+				epnl[0].add(etf[i]);
 			}
-			cpnl[1].add(new JScrollPane(table));
+			epnl[1].add(new JScrollPane(table));
 			for(int i = 0;i<4;i++) {
-				cpnl[2].add(cbtn[i]);
+				epnl[2].add(ebtn[i]);
 			}
 		}
 	}
-	
-	
-	
+//	 public Connection makeConnection(){ //드라이브 연결
+//	      String url="jdbc:mysql://localhost:3306/book_db?serverTimezone=Asia/Seoul";
+//	      String id="root";
+//	      String password="1234";
+//	      try{
+//	         Class.forName("com.mysql.cj.jdbc.Driver");
+//	         System.out.println("드라이브 적재 성공");
+//	         con=DriverManager.getConnection(url, id, password);
+//	         stmt=con.createStatement();
+//	         System.out.println("데이터베이스 연결 성공");
+//	      }catch(ClassNotFoundException e){
+//	         System.out.println("드라이버를 찾을 수 없습니다");
+//	      }catch(SQLException e){
+//	         System.out.println("연결에 실패하였습니다");
+//	      }
+//	      return con;
+//	   }
+//
+//	   public void disConnection() {
+//	      try{
+//	         rs.close();
+//	         stmt.close();
+//	         con.close();
+//	      }catch(SQLException e){System.out.println(e.getMessage());}
+//	   }
+//	
+//	
 	public static void main(String[] args) {
 	      new Marketdb();
 	   }
