@@ -1,9 +1,13 @@
 package market;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-
+import java.sql.Statement;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
@@ -33,7 +37,7 @@ public class Marketdb extends JFrame{
 	
 	
 	class CustomerPanel extends JPanel {
-		JPanel cpnl[];
+		JPanel spnl[];
 		JLabel clbl[];
 		JButton cbtn[];
 		JTextField ctf[];
@@ -47,7 +51,7 @@ public class Marketdb extends JFrame{
 			clbl = new JLabel[5];
 			cbtn = new JButton[4];
 			ctf = new JTextField[5];
-			cpnl = new JPanel[3];
+			spnl = new JPanel[3];
 			setLayout(new BorderLayout());
 			for(int i = 0;i < 5;i++) {
 				clbl[i] = new JLabel(lbl_tf[i]);
@@ -56,7 +60,7 @@ public class Marketdb extends JFrame{
 					cbtn[i] = new JButton(lbl_btn[i]);
 				}
 				if(i<3) {
-					cpnl[i] = new JPanel();
+					spnl[i] = new JPanel();
 				}
 			}
 			model = new DefaultTableModel(lbl_tf,0) {
@@ -67,17 +71,17 @@ public class Marketdb extends JFrame{
 			};
 			table = new JTable(model);
 			
-			add(cpnl[0],BorderLayout.NORTH);
-			add(cpnl[1],BorderLayout.CENTER);
-			add(cpnl[2],BorderLayout.SOUTH);
+			add(spnl[0],BorderLayout.NORTH);
+			add(spnl[1],BorderLayout.CENTER);
+			add(spnl[2],BorderLayout.SOUTH);
 			
 			for(int i = 0;i<5;i++) {
-				cpnl[0].add(clbl[i]);
-				cpnl[0].add(ctf[i]);
+				spnl[0].add(clbl[i]);
+				spnl[0].add(ctf[i]);
 			}
-			cpnl[1].add(new JScrollPane(table));
+			spnl[1].add(new JScrollPane(table));
 			for(int i = 0;i<4;i++) {
-				cpnl[2].add(cbtn[i]);
+				spnl[2].add(cbtn[i]);
 			}
 		}
 		
@@ -184,33 +188,103 @@ public class Marketdb extends JFrame{
 			}
 		}
 	}
-//	 public Connection makeConnection(){ //드라이브 연결
-//	      String url="jdbc:mysql://localhost:3306/book_db?serverTimezone=Asia/Seoul";
-//	      String id="root";
-//	      String password="1234";
-//	      try{
-//	         Class.forName("com.mysql.cj.jdbc.Driver");
-//	         System.out.println("드라이브 적재 성공");
-//	         con=DriverManager.getConnection(url, id, password);
-//	         stmt=con.createStatement();
-//	         System.out.println("데이터베이스 연결 성공");
-//	      }catch(ClassNotFoundException e){
-//	         System.out.println("드라이버를 찾을 수 없습니다");
-//	      }catch(SQLException e){
-//	         System.out.println("연결에 실패하였습니다");
-//	      }
-//	      return con;
-//	   }
-//
-//	   public void disConnection() {
-//	      try{
-//	         rs.close();
-//	         stmt.close();
-//	         con.close();
-//	      }catch(SQLException e){System.out.println(e.getMessage());}
-//	   }
-//	
-//	
+	
+	
+	public class MarketdbView {
+		   StockPanel sp = new StockPanel();
+		   ActionHandler handler=new ActionHandler();
+		   Connection con=null;
+		   Statement stmt=null;
+		   ResultSet rs=null;
+		   PreparedStatement ps = null;
+		   
+		   public MarketdbView() {
+		      sp.sbtn[0].addActionListener(handler);
+		      sp.sbtn[1].addActionListener(handler);
+		      sp.sbtn[2].addActionListener(handler);
+		      sp.sbtn[3].addActionListener(handler);
+		   }
+	
+	class ActionHandler implements ActionListener {
+	      public void actionPerformed(ActionEvent e) {
+	         makeConnection();
+	         if(e.getSource()==sp.sbtn[0]) {
+	            try {
+	                  stmt = con.createStatement();
+	                  int st = stmt.executeUpdate(
+	                          "INSERT INTO book values ('" + sp.stf[0].getText() + "', '" + sp.stf[1].getText() + "', '" + sp.stf[2].getText() + "', '" + sp.stf[3].getText() + "')");
+	              } catch (SQLException e1) {
+	                  e1.printStackTrace();
+	              }
+	         }
+	         
+	         else if(e.getSource()==sp.sbtn[1]) {
+	            String sql="SELECT * FROM book";
+	            String[] row=new String[4];
+	            sp.model.setNumRows(0); // JTable 초기화
+	            try {
+	               System.out.println(sql+"\n");
+	               rs=stmt.executeQuery(sql);
+	               while(rs.next()) {
+	                  row[0]=rs.getString("id")+"\t";
+	                  row[1]=rs.getString("title")+"\t";
+	                  row[2]=rs.getString("publisher")+"\t";
+	                  row[3]=rs.getString("price")+"\n";
+	                  sp.model.addRow(row); // 추가
+	               }
+	            } catch (SQLException e1) {
+	               e1.printStackTrace();
+	            }
+	         }
+	         else if(e.getSource()==sp.sbtn[2]) {
+	            try {
+	                  stmt = con.createStatement();
+	                  int st = stmt.executeUpdate("UPDATE book set id = '" + sp.stf[0].getText() + "' where title = '" + sp.stf[1].getText() +"';");
+	              } catch (SQLException e1) {
+	                  e1.printStackTrace();
+	              }
+	            
+	         }
+	         else if(e.getSource()==sp.sbtn[3]) {
+	            try {
+	                  stmt = con.createStatement();
+	                  int st = stmt.executeUpdate("DELETE from book where id = '" + sp.stf[0].getText() + "';" );
+	              } catch (SQLException e1) {
+	                  e1.printStackTrace();
+	              }
+	         }
+	         disConnection();      
+	      }
+	   }
+
+	
+	public Connection makeConnection(){ //드라이브 연결
+	      String url="jdbc:mysql://localhost:3306/book_db?serverTimezone=Asia/Seoul";
+	      String id="root";
+	      String password="1234";
+	      try{
+	         Class.forName("com.mysql.cj.jdbc.Driver");
+	         System.out.println("드라이브 적재 성공");
+	         con=DriverManager.getConnection(url, id, password);
+	         stmt=con.createStatement();
+	         System.out.println("데이터베이스 연결 성공");
+	      }catch(ClassNotFoundException e){
+	         System.out.println("드라이버를 찾을 수 없습니다");
+	      }catch(SQLException e){
+	         System.out.println("연결에 실패하였습니다");
+	      }
+	      return con;
+	   }
+
+	   public void disConnection() {
+	      try{
+	         rs.close();
+	         stmt.close();
+	         con.close();
+	      }catch(SQLException e){System.out.println(e.getMessage());}
+	   }
+	
+	}
 	public static void main(String[] args) {
 	      new Marketdb();
 	   }
