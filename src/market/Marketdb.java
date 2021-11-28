@@ -65,7 +65,7 @@ public class Marketdb extends JFrame {
 				if (i < 4) {
 					cbtn[i] = new JButton(lbl_btn[i]);
 					cbtn[i].addActionListener(handler);
-				}
+				} 
 				if (i < 3) {
 					cpnl[i] = new JPanel();
 				}
@@ -94,7 +94,7 @@ public class Marketdb extends JFrame {
 		}
 		
 		public Connection makeConnection() { // 드라이브 연결
-			System.out.println("makeconn호출함");
+			System.out.println("고객 makeconn 호출함");
 			String url = "jdbc:mysql://localhost:3306/customer?serverTimezone=Asia/Seoul";
 			String id = "root";
 			String password = "1249";
@@ -178,6 +178,7 @@ public class Marketdb extends JFrame {
 	}
 
 	class StockPanel extends JPanel {
+		ActionHandler handler = new ActionHandler();
 		JPanel spnl[];
 		JLabel slbl[];
 		JButton sbtn[];
@@ -187,8 +188,13 @@ public class Marketdb extends JFrame {
 		String[] lbl_btn = { "추가", "조회", "수정", "삭제" };
 		JTable table;
 		DefaultTableModel model;
+		
+		Connection con = null;
+		Statement stmt = null;
+		ResultSet rs = null;
 
 		public StockPanel() {
+			con = makeConnection();
 			slbl = new JLabel[4];
 			sbtn = new JButton[4];
 			stf = new JTextField[5];
@@ -197,6 +203,7 @@ public class Marketdb extends JFrame {
 			for (int i = 0; i < 4; i++) {
 				stf[i] = new JTextField(10);
 				sbtn[i] = new JButton(lbl_btn[i]);
+				sbtn[i].addActionListener(handler);
 				slbl[i] = new JLabel(lbl_tf[i]);
 				if (i < 3) {
 					spnl[i] = new JPanel();
@@ -224,9 +231,90 @@ public class Marketdb extends JFrame {
 				spnl[2].add(sbtn[i]);
 			}
 		}
+		public Connection makeConnection() { // 드라이브 연결
+			System.out.println("상품 makeconn호출함");
+			String url = "jdbc:mysql://localhost:3306/customer?serverTimezone=Asia/Seoul";
+			String id = "root";
+			String password = "1249";
+			try {
+				Class.forName("com.mysql.cj.jdbc.Driver");
+				System.out.println("드라이브 적재 성공");
+				con = DriverManager.getConnection(url, id, password);
+				stmt = con.createStatement();
+				System.out.println("데이터베이스 연결 성공");
+			} catch (ClassNotFoundException e) {
+				System.out.println("드라이버를 찾을 수 없습니다");
+			} catch (SQLException e) {
+				System.out.println("연결에 실패하였습니다");
+			}
+			return con;
+		}
+
+		public void disConnection() {
+			try {
+				rs.close();
+				stmt.close();
+				con.close();
+			} catch (SQLException e) {
+				System.out.println(e.getMessage());
+			}
+		}
+		
+		class ActionHandler implements ActionListener {
+			public void actionPerformed(ActionEvent e) {
+				makeConnection();
+				if (e.getSource() == sbtn[0]) {
+					try {
+						stmt = con.createStatement();
+						int st = stmt.executeUpdate("INSERT INTO stock values ('" + stf[0].getText() + "', '"
+								+ stf[1].getText() + "', '" + stf[2].getText() + "', '" + stf[3].getText() + "')");
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				}
+
+				else if (e.getSource() == sbtn[1]) {
+					String sql = "SELECT * FROM stock";
+					String[] row = new String[4];
+					model.setNumRows(0); // JTable 초기화
+					try {
+						System.out.println(sql + "\n");
+						rs = stmt.executeQuery(sql);
+						while (rs.next()) {
+							row[0] = rs.getString("kinds") + "\t";
+							row[1] = rs.getString("name") + "\t";
+							row[2] = rs.getString("company") + "\t";
+							row[3] = rs.getString("price") + "\n";
+							model.addRow(row); // 추가
+						}
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				} else if (e.getSource() == sbtn[2]) {
+					try {
+						stmt = con.createStatement();
+						int st = stmt.executeUpdate("UPDATE stock set kinds = '" + stf[0].getText()
+								+ "' where name = '" + stf[1].getText() + "';");
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+
+				} else if (e.getSource() == sbtn[3]) {
+					try {
+						stmt = con.createStatement();
+						int st = stmt
+								.executeUpdate("DELETE from stock where name = '" + stf[1].getText() + "';");
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				}
+				disConnection();
+			}
+		}
 	}
 
 	class EmployeePanel extends JPanel {
+		ActionHandler handler = new ActionHandler();
 		JPanel epnl[];
 		JLabel elbl[];
 		JButton ebtn[];
@@ -237,7 +325,11 @@ public class Marketdb extends JFrame {
 		JTable table;
 		DefaultTableModel model;
 
+		Connection con = null;
+		Statement stmt = null;
+		ResultSet rs = null;
 		public EmployeePanel() {
+			con = makeConnection();
 			elbl = new JLabel[5];
 			ebtn = new JButton[4];
 			etf = new JTextField[5];
@@ -248,6 +340,7 @@ public class Marketdb extends JFrame {
 				etf[i] = new JTextField(10);
 				if (i < 4) {
 					ebtn[i] = new JButton(lbl_btn[i]);
+					ebtn[i].addActionListener(handler);
 				}
 				if (i < 3) {
 					epnl[i] = new JPanel();
@@ -275,80 +368,8 @@ public class Marketdb extends JFrame {
 				epnl[2].add(ebtn[i]);
 			}
 		}
-	}
-
-	public class MarketdbView {
-		CustomerPanel cp = new CustomerPanel();
-		ActionHandler handler = new ActionHandler();
-		Connection con = null;
-		Statement stmt = null;
-		ResultSet rs = null;
-		PreparedStatement ps = null;
-
-		public MarketdbView() {
-			System.out.println("marketdbView()");
-			cp.cbtn[0].addActionListener(handler);
-			cp.cbtn[1].addActionListener(handler);
-			cp.cbtn[2].addActionListener(handler);
-			cp.cbtn[3].addActionListener(handler);
-		}
-
-		class ActionHandler implements ActionListener {
-			public void actionPerformed(ActionEvent e) {
-				makeConnection();
-				if (e.getSource() == cp.cbtn[0]) {
-					try {
-						stmt = con.createStatement();
-						int st = stmt.executeUpdate("INSERT INTO customer values ('" + cp.ctf[0].getText() + "', '"
-								+ cp.ctf[1].getText() + "', '" + cp.ctf[2].getText() + "', '" + cp.ctf[3].getText()
-								+ "', '" + cp.ctf[4].getText() + "')");
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-				}
-
-				else if (e.getSource() == cp.cbtn[1]) {
-					String sql = "SELECT * FROM customer";
-					String[] row = new String[5];
-					cp.model.setNumRows(0); // JTable 초기화
-					try {
-						System.out.println(sql + "\n");
-						rs = stmt.executeQuery(sql);
-						while (rs.next()) {
-							row[0] = rs.getString("phone") + "\t";
-							row[1] = rs.getString("name") + "\t";
-							row[2] = rs.getString("birth") + "\t";
-							row[3] = rs.getString("sign") + "\t";
-							row[4] = rs.getString("point") + "\n";
-							cp.model.addRow(row); // 추가
-						}
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-				} else if (e.getSource() == cp.cbtn[2]) {
-					try {
-						stmt = con.createStatement();
-						int st = stmt.executeUpdate("UPDATE customer set phone = '" + cp.ctf[0].getText()
-								+ "' where name = '" + cp.ctf[1].getText() + "';");
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-
-				} else if (e.getSource() == cp.cbtn[3]) {
-					try {
-						stmt = con.createStatement();
-						int st = stmt
-								.executeUpdate("DELETE from customer where phone = '" + cp.ctf[0].getText() + "';");
-					} catch (SQLException e1) {
-						e1.printStackTrace();
-					}
-				}
-				disConnection();
-			}
-		}
-
 		public Connection makeConnection() { // 드라이브 연결
-			System.out.println("makeconn호출함");
+			System.out.println("직원 makeconn 호출함");
 			String url = "jdbc:mysql://localhost:3306/customer?serverTimezone=Asia/Seoul";
 			String id = "root";
 			String password = "1249";
@@ -375,8 +396,162 @@ public class Marketdb extends JFrame {
 				System.out.println(e.getMessage());
 			}
 		}
+		
+		class ActionHandler implements ActionListener {
+			public void actionPerformed(ActionEvent e) {
+				makeConnection();
+				if (e.getSource() == ebtn[0]) {
+					try {
+						stmt = con.createStatement();
+						int st = stmt.executeUpdate("INSERT INTO employee values ('" + etf[0].getText() + "', '"
+								+ etf[1].getText() + "', '" + etf[2].getText() + "', '" + etf[3].getText()
+								+ "', '" + etf[4].getText() + "')");
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				}
 
+				else if (e.getSource() == ebtn[1]) {
+					String sql = "SELECT * FROM employee";
+					String[] row = new String[5];
+					model.setNumRows(0); // JTable 초기화
+					try {
+						System.out.println(sql + "\n");
+						rs = stmt.executeQuery(sql);
+						while (rs.next()) {
+							row[0] = rs.getString("id") + "\t";
+							row[1] = rs.getString("name") + "\t";
+							row[2] = rs.getString("address") + "\t";
+							row[3] = rs.getString("phone") + "\t";
+							row[4] = rs.getString("rank") + "\n";
+							model.addRow(row); // 추가
+						}
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				} else if (e.getSource() == ebtn[2]) {
+					try {
+						stmt = con.createStatement();
+						int st = stmt.executeUpdate("UPDATE employee set id = '" + etf[0].getText()
+								+ "' where name = '" + etf[1].getText() + "';");
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+
+				} else if (e.getSource() == ebtn[3]) {
+					try {
+						stmt = con.createStatement();
+						int st = stmt
+								.executeUpdate("DELETE from employee where id = '" + etf[0].getText() + "';");
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				}
+				disConnection();
+			}
+		}
 	}
+
+//	public class MarketdbView {
+//		CustomerPanel cp = new CustomerPanel();
+//		ActionHandler handler = new ActionHandler();
+//		Connection con = null;
+//		Statement stmt = null;
+//		ResultSet rs = null;
+//		PreparedStatement ps = null;
+//
+//		public MarketdbView() {
+//			System.out.println("marketdbView()");
+//			cp.cbtn[0].addActionListener(handler);
+//			cp.cbtn[1].addActionListener(handler);
+//			cp.cbtn[2].addActionListener(handler);
+//			cp.cbtn[3].addActionListener(handler);
+//		}
+//
+//		class ActionHandler implements ActionListener {
+//			public void actionPerformed(ActionEvent e) {
+//				makeConnection();
+//				if (e.getSource() == cp.cbtn[0]) {
+//					try {
+//						stmt = con.createStatement();
+//						int st = stmt.executeUpdate("INSERT INTO customer values ('" + cp.ctf[0].getText() + "', '"
+//								+ cp.ctf[1].getText() + "', '" + cp.ctf[2].getText() + "', '" + cp.ctf[3].getText()
+//								+ "', '" + cp.ctf[4].getText() + "')");
+//					} catch (SQLException e1) {
+//						e1.printStackTrace();
+//					}
+//				}
+//
+//				else if (e.getSource() == cp.cbtn[1]) {
+//					String sql = "SELECT * FROM customer";
+//					String[] row = new String[5];
+//					cp.model.setNumRows(0); // JTable 초기화
+//					try {
+//						System.out.println(sql + "\n");
+//						rs = stmt.executeQuery(sql);
+//						while (rs.next()) {
+//							row[0] = rs.getString("phone") + "\t";
+//							row[1] = rs.getString("name") + "\t";
+//							row[2] = rs.getString("birth") + "\t";
+//							row[3] = rs.getString("sign") + "\t";
+//							row[4] = rs.getString("point") + "\n";
+//							cp.model.addRow(row); // 추가
+//						}
+//					} catch (SQLException e1) {
+//						e1.printStackTrace();
+//					}
+//				} else if (e.getSource() == cp.cbtn[2]) {
+//					try {
+//						stmt = con.createStatement();
+//						int st = stmt.executeUpdate("UPDATE customer set phone = '" + cp.ctf[0].getText()
+//								+ "' where name = '" + cp.ctf[1].getText() + "';");
+//					} catch (SQLException e1) {
+//						e1.printStackTrace();
+//					}
+//
+//				} else if (e.getSource() == cp.cbtn[3]) {
+//					try {
+//						stmt = con.createStatement();
+//						int st = stmt
+//								.executeUpdate("DELETE from customer where phone = '" + cp.ctf[0].getText() + "';");
+//					} catch (SQLException e1) {
+//						e1.printStackTrace();
+//					}
+//				}
+//				disConnection();
+//			}
+//		}
+//
+//		public Connection makeConnection() { // 드라이브 연결
+//			System.out.println("makeconn호출함");
+//			String url = "jdbc:mysql://localhost:3306/customer?serverTimezone=Asia/Seoul";
+//			String id = "root";
+//			String password = "1249";
+//			try {
+//				Class.forName("com.mysql.cj.jdbc.Driver");
+//				System.out.println("드라이브 적재 성공");
+//				con = DriverManager.getConnection(url, id, password);
+//				stmt = con.createStatement();
+//				System.out.println("데이터베이스 연결 성공");
+//			} catch (ClassNotFoundException e) {
+//				System.out.println("드라이버를 찾을 수 없습니다");
+//			} catch (SQLException e) {
+//				System.out.println("연결에 실패하였습니다");
+//			}
+//			return con;
+//		}
+//
+//		public void disConnection() {
+//			try {
+//				rs.close();
+//				stmt.close();
+//				con.close();
+//			} catch (SQLException e) {
+//				System.out.println(e.getMessage());
+//			}
+//		}
+//
+//	}
 
 	public static void main(String[] args) {
 		new Marketdb();
