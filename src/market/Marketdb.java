@@ -1,5 +1,5 @@
 package market;
-
+//작업시 패키지 맞출것
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,7 +16,7 @@ import javax.swing.table.DefaultTableModel;
 public class Marketdb extends JFrame {
 	JTabbedPane pane;
 	Container contentPane;
-
+//탭 패인을 이용했기에 프레임에서 사용하지 말고 패널에서 모든것을 처리 할 것
 	public Marketdb() {
 		setTitle("oo슈퍼 관리 프로그램");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -25,9 +25,8 @@ public class Marketdb extends JFrame {
 		contentPane.add(pane, BorderLayout.CENTER);
 		setSize(1280,720);
 		setVisible(true);
-
 	}
-
+// 탭 패인 추가
 	JTabbedPane createJTabbedPane() {
 		JTabbedPane pane = new JTabbedPane();
 		// 탭추가
@@ -38,7 +37,7 @@ public class Marketdb extends JFrame {
 
 		return pane;
 	}
-
+//아래의 코드는 DB팀이 DB연동으 위해 어떻게 연결해야 하는지 참고 할것 (GUI는 456줄로 이동)
 //	class CustomerPanel extends JPanel {
 //		ActionHandler handler = new ActionHandler();
 //		JPanel cpnl[];
@@ -453,7 +452,7 @@ public class Marketdb extends JFrame {
 //			}
 //		}
 //	}
-
+//결제 관리 패널 : 계획페이지에 있는 것을 그대로 썼는데 어색한 면이 있음
 	class PaymentPanel extends JPanel {
 		JPanel ppnl[];
 		JLabel plbl[];
@@ -466,7 +465,7 @@ public class Marketdb extends JFrame {
 		String[] pkind = { "현금", "카드", "지역화페", "포인트" };
 		JTable table;
 		DefaultTableModel model;
-
+//위에서 지정한 것들을 아래에서 지정함
 		public PaymentPanel() {
 			plbl = new JLabel[5];
 			pbtn = new JButton[3];
@@ -474,8 +473,8 @@ public class Marketdb extends JFrame {
 			ppnl = new JPanel[3];
 			setLayout(new BorderLayout());
 
-			JComboBox<String> pcombo = new JComboBox<String>(pkind);
-
+			JComboBox<String> pcombo = new JComboBox<String>(pkind); //결제방법의 콤보박스화 (아래 패널들도 비슷하게 설정해뒀음)
+// 배열수 만큼 for문을 돌려 제작함
 			for (int i = 0; i < 5; i++) {
 				plbl[i] = new JLabel(lbl_tf2[i]);
 				if (i < 4) {
@@ -486,6 +485,7 @@ public class Marketdb extends JFrame {
 					pbtn[i] = new JButton(lbl_btn[i]);
 				}
 			}
+//테이도 만들었음 (lbl_tf1을 기준으로 만들었음)
 			model = new DefaultTableModel(lbl_tf1, 0) {
 				private static final long serialVersionUID = 1L;
 
@@ -494,25 +494,26 @@ public class Marketdb extends JFrame {
 				}
 			};
 			table = new JTable(model);
-
+//패널에 레이아웃을 지정해 탭패널에 추가함			
 			add(ppnl[0], BorderLayout.NORTH);
 			add(ppnl[1], BorderLayout.CENTER);
 			add(ppnl[2], BorderLayout.SOUTH);
-
+//for문을 이용해 위에서 만든 정보들을 라벨과 버튼 등을 추가했음
 			for (int i = 0; i < 5; i++) {
 				ppnl[0].add(plbl[i]);
 				if (i < 4) {
 					ppnl[0].add(ptf[i]);
 				}
 			}
-			ppnl[0].add(pcombo);
+			ppnl[0].add(pcombo); //콤보박스도 추가함
 			ppnl[1].add(new JScrollPane(table));
 			for (int i = 0; i < 3; i++) {
 				ppnl[2].add(pbtn[i]);
 			}
 		}
 	}
-
+//이것이 GUI의 큰 틀이며 모든 것들을 대부분 이렇게 사용하였음. DB팀은 이 코드를 가지고 버튼에 핸들러를 달아서 GUI에 연결 시키고 연동이 되는지 확인 할 것.
+//아래 코드도 위의 결제 패널과 비슷하지만 헷갈리는 것은 주석으로 다 달아주도록 하겠음
 	class EmployeePanel extends JPanel {
 		JPanel epnl[];
 		JLabel elbl[];
@@ -548,7 +549,6 @@ public class Marketdb extends JFrame {
 					epnl[i] = new JPanel();
 				}
 			}
-			// 버튼은 핸들러 추가시 이름 없을떄 조회 비활성화 버튼 추가
 			model = new DefaultTableModel(lbl_tf, 0) {
 				private static final long serialVersionUID = 1L;
 
@@ -588,8 +588,8 @@ public class Marketdb extends JFrame {
 		JButton cbtn[];
 		JTextField ctf[];
 		JTextArea cta[];
-		String[] lbl_tf = { "회원번호", "이름", "전화번호", "생년월일", "포인트","이름 검색" };
-		String[] tab_tf = { "회원번호", "이름", "전화번호", "생년월일", "포인트"};// (전화번호는 앞자리만,중복은 상관없음. or 중복없이 11자리 모두 사용)
+		String[] lbl_tf = { "회원번호", "이름", "전화번호", "생년월일", "포인트","이름 검색" }; // (*전화번호는 앞자리만,중복은 상관없음. or 중복없이 11자리 모두 사용, 조회는 전자를 선호)
+		String[] tab_tf = { "회원번호", "이름", "전화번호", "생년월일", "포인트"}; //(*정보 표기는 후자를 선호)
 		String[] lbl_btn = { "등록", "수정", "삭제", "조회" };
 		String[] year = {"00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20",
 				"21","22","23","24","25","26","27","28","29","30",
@@ -615,6 +615,7 @@ public class Marketdb extends JFrame {
 			JComboBox<String> ccombo1 = new JComboBox<String>(year);
 			JComboBox<String> ccombo2 = new JComboBox<String>(month);
 			JComboBox<String> ccombo3 = new JComboBox<String>(day);
+			
 			setLayout(new BorderLayout());
 			for (int i = 0; i < 6; i++) {
 				clbl[i] = new JLabel(lbl_tf[i]);
@@ -667,31 +668,28 @@ public class Marketdb extends JFrame {
 		JButton sbtn[];
 		JTextField stf[];
 		JTextArea sta[];
-		String[] lbl_tf1 = { "상품번호", "상품명", "수량", "유통기한" };
-		String[] lbl_tf2 = { "상품번호", "상품명", "수량"};
-		String[] lbl_tf3 = { "물품 검색"};
+		String[] lbl_tf1 = { "상품번호", "상품명", "수량", "유통기한","물품 검색" };
 		String[] lbl_btn = {"입고","출고","검색"};
 		JTable table;
 		DefaultTableModel model;
 
 		public StockPanel() {
-			slbl = new JLabel[10]; //0~9
+			slbl = new JLabel[5]; //0~6
 			sbtn = new JButton[3];
-			stf = new JTextField[8];
+			stf = new JTextField[5];
 			spnl = new JPanel[3];
 			setLayout(new BorderLayout());
-			for (int i = 0; i < 8; i++) {
+			for (int i = 0; i < 5; i++) {
 				stf[i] = new JTextField(10);
-				if (i <4) {
-					slbl[i] = new JLabel(lbl_tf1[i]); //0 1 2 3    4,8은 버튼   9는 통합
-					}
+				slbl[i] = new JLabel(lbl_tf1[i]);
+//				if (i <4) {
+//					
+//					}
 				if (i < 3) {
-					slbl[i+5] = new JLabel(lbl_tf2[i]); //5 6 7
 					sbtn[i] = new JButton(lbl_btn[i]);
 					spnl[i] = new JPanel();
 				}
 			}
-			slbl[9] = new JLabel(lbl_tf3[0]);
 			
 			model = new DefaultTableModel(lbl_tf1, 0) {
 				private static final long serialVersionUID = 1L;
@@ -706,19 +704,15 @@ public class Marketdb extends JFrame {
 			add(spnl[1], BorderLayout.CENTER);
 			add(spnl[2], BorderLayout.SOUTH);
 			
-			for (int i = 0; i < 4; i++) { //0 1 2 3
+			for (int i = 0; i < 4; i++) { 
 				spnl[0].add(slbl[i]);
 				spnl[0].add(stf[i]);
 			}
-			spnl[0].add(sbtn[0]); //4
-			for (int j = 5; j < 8; j++) { //5 6 7
-				spnl[0].add(slbl[j]);
-				spnl[0].add(stf[j-1]);
-			}
-			spnl[0].add(sbtn[1]); //8
+			spnl[0].add(sbtn[0]); //입고
+			spnl[0].add(sbtn[1]); //출고
 			spnl[1].add(new JScrollPane(table));
-			spnl[2].add(slbl[9]); //9
-			spnl[2].add(stf[7]);
+			spnl[2].add(slbl[4]); //검색
+			spnl[2].add(stf[4]);
 			spnl[2].add(sbtn[2]);
 		}
 	}
@@ -728,3 +722,6 @@ public class Marketdb extends JFrame {
 		new Marketdb();
 	}
 }
+
+// DB틀을 짰으니 레이아웃 정리는 인하가 하고 ,DB는 위에서 말했듯이 성찬,성민씨가 하시면 되요. 틀을 짜뒀으니 뭐 레이아웃은 FlowLayout을 쓰든 setBound를 쓰든 상관 쓰기 않을테니 
+//쉬운파트라고 생각하고 넘겨드릴게요. DB는 SQL 연결하시고 스키마,테이블 만든걸로 버튼 핸들러로 연결시켜 작동이 되는지 확인해 주세요. 핸들러 넣는 법을 모르시면 41~454줄의 코드를 확인해보세요.
